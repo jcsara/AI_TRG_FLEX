@@ -25,10 +25,34 @@ This repository provides structured training materials for developers and data s
 
 ### Quick Start
 
+Ready to get started? Check out our [Quick Start Guide](docs/quick-start.md) for step-by-step instructions!
+
+**In 5 minutes you'll be able to:**
+1. Set up your environment
+2. Run your first AI model
+3. Start learning with structured modules
+
+Or follow these steps:
+
 1. Clone this repository
-2. Navigate to the training modules in the `modules/` directory
-3. Start with `modules/01-getting-started/` for foundational concepts
-4. Progress through modules at your own pace
+   ```bash
+   git clone https://github.com/jcsara/AI_TRG_FLEX.git
+   cd AI_TRG_FLEX
+   ```
+
+2. Install dependencies
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Run an example
+   ```bash
+   python examples/iris_classification.py
+   ```
+
+4. Start learning
+   - Begin with [Module 1: Getting Started](modules/01-getting-started/)
+   - Progress through modules at your own pace
 
 ## 📖 Training Modules
 
@@ -77,9 +101,10 @@ Check the `examples/` directory for practical, hands-on examples:
 ## 📚 Resources
 
 ### Documentation
-- [FLEX AI Documentation](docs/flex-ai-guide.md)
-- [API Reference](docs/api-reference.md)
-- [Best Practices](docs/best-practices.md)
+- [Quick Start Guide](docs/quick-start.md) - Get started in 5 minutes!
+- [FLEX AI Documentation](docs/flex-ai-guide.md) - Complete guide
+- [API Reference](docs/api-reference.md) - Detailed API documentation
+- [Best Practices](docs/best-practices.md) - Production-ready guidelines
 
 ### External Resources
 - [Machine Learning Fundamentals](https://ml-fundamentals.example.com)
