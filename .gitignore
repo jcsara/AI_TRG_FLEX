@@ -83,7 +83,6 @@ temp/
 
 # OS
 Thumbs.db
-.DS_Store
 
 # Generated plots and images
 *.png
