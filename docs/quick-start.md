@@ -103,9 +103,9 @@ cat README.md
 
 ### 3. Explore Documentation
 
-- [FLEX AI Guide](docs/flex-ai-guide.md) - Complete guide to AI in FLEX
-- [Best Practices](docs/best-practices.md) - Industry best practices
-- [API Reference](docs/api-reference.md) - Detailed API documentation
+- [FLEX AI Guide](flex-ai-guide.md) - Complete guide to AI in FLEX
+- [Best Practices](best-practices.md) - Industry best practices
+- [API Reference](api-reference.md) - Detailed API documentation
 
 ## Common Tasks
 
@@ -211,4 +211,4 @@ pip install scikit-learn
 
 ---
 
-Happy learning! Start with [Module 1: Getting Started](modules/01-getting-started/README.md)
+Happy learning! Start with [Module 1: Getting Started](../modules/01-getting-started/README.md)

@@ -1,536 +1,287 @@
 # API Reference
 
-This document provides detailed API reference for working with AI in FLEX.
+This document provides a **template** API reference for what a FLEX AI framework might look like. 
 
-## Core Modules
+> **Note**: This is example documentation showing how an AI framework API could be structured. The examples use scikit-learn and pandas underneath. For actual working code, refer to the examples in the `examples/` directory.
 
-### flex.data
+## Using Scikit-Learn Directly
 
-Data loading and preprocessing utilities.
+Since this is a training repository, we'll use scikit-learn and pandas directly. Here's the practical API you'll use:
 
-#### DataLoader
-
-Load data from various sources.
+### Data Loading with Pandas
 
 ```python
-from flex.data import DataLoader
+import pandas as pd
 
-loader = DataLoader(source="path/to/data", format="csv")
-data = loader.load()
+# From CSV
+df = pd.read_csv('data.csv')
+
+# From Python data
+data = {'feature1': [1, 2, 3], 'feature2': [4, 5, 6]}
+df = pd.DataFrame(data)
 ```
 
-**Parameters:**
-- `source` (str): Path to data source
-- `format` (str): Data format ('csv', 'json', 'parquet', 'database')
-- `options` (dict): Format-specific options
-
-**Methods:**
-
-##### load()
-
-Load data from the configured source.
+### Data Preprocessing with Scikit-Learn
 
 ```python
-data = loader.load()
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Scale features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 ```
 
-**Returns:** pandas.DataFrame
-
-##### validate()
-
-Validate data quality.
+### Model Training
 
 ```python
-is_valid, errors = loader.validate()
-```
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression, LinearRegression
 
-**Returns:** tuple(bool, list)
-
-#### DataPreprocessor
-
-Preprocess and transform data.
-
-```python
-from flex.data import DataPreprocessor
-
-preprocessor = DataPreprocessor()
-preprocessor.fit(data)
-transformed = preprocessor.transform(data)
-```
-
-**Methods:**
-
-##### fit(data)
-
-Learn preprocessing parameters from data.
-
-**Parameters:**
-- `data` (DataFrame): Training data
-
-**Returns:** self
-
-##### transform(data)
-
-Apply preprocessing transformations.
-
-**Parameters:**
-- `data` (DataFrame): Data to transform
-
-**Returns:** DataFrame
-
-##### fit_transform(data)
-
-Fit and transform in one step.
-
-**Parameters:**
-- `data` (DataFrame): Data to fit and transform
-
-**Returns:** DataFrame
-
-### flex.model
-
-Model training and prediction.
-
-#### Model
-
-Base model class for training and inference.
-
-```python
-from flex.model import Model
-
-model = Model(algorithm="random_forest", **params)
-model.fit(X_train, y_train)
-predictions = model.predict(X_test)
-```
-
-**Parameters:**
-- `algorithm` (str): Algorithm name
-- `params` (dict): Algorithm-specific hyperparameters
-
-**Methods:**
-
-##### fit(X, y)
-
-Train the model.
-
-**Parameters:**
-- `X` (array-like): Training features
-- `y` (array-like): Training labels
-
-**Returns:** self
-
-##### predict(X)
-
-Make predictions.
-
-**Parameters:**
-- `X` (array-like): Input features
-
-**Returns:** array-like predictions
-
-##### predict_proba(X)
-
-Predict class probabilities (classification only).
-
-**Parameters:**
-- `X` (array-like): Input features
-
-**Returns:** array-like probabilities
-
-##### score(X, y)
-
-Calculate model score.
-
-**Parameters:**
-- `X` (array-like): Input features
-- `y` (array-like): True labels
-
-**Returns:** float score
-
-##### save(path)
-
-Save model to disk.
-
-**Parameters:**
-- `path` (str): Save path
-
-##### load(path)
-
-Load model from disk.
-
-**Parameters:**
-- `path` (str): Model path
-
-**Returns:** Model instance
-
-#### Classifier
-
-Classification-specific model.
-
-```python
-from flex.model import Classifier
-
-clf = Classifier(algorithm="logistic_regression")
+# Classification
+clf = RandomForestClassifier(n_estimators=100, random_state=42)
 clf.fit(X_train, y_train)
-```
+predictions = clf.predict(X_test)
 
-**Inherits from:** Model
-
-**Additional Methods:**
-
-##### get_classes()
-
-Get class labels.
-
-**Returns:** array of class labels
-
-#### Regressor
-
-Regression-specific model.
-
-```python
-from flex.model import Regressor
-
-reg = Regressor(algorithm="linear_regression")
+# Regression
+reg = LinearRegression()
 reg.fit(X_train, y_train)
+predictions = reg.predict(X_test)
 ```
 
-**Inherits from:** Model
-
-### flex.pipeline
-
-End-to-end ML pipelines.
-
-#### Pipeline
-
-Chain multiple processing steps.
+### Model Evaluation
 
 ```python
-from flex.pipeline import Pipeline
-from flex.data import DataPreprocessor
-from flex.model import Classifier
+from sklearn.metrics import (
+    accuracy_score, 
+    classification_report,
+    mean_squared_error,
+    r2_score
+)
 
+# Classification metrics
+accuracy = accuracy_score(y_test, predictions)
+report = classification_report(y_test, predictions)
+
+# Regression metrics
+mse = mean_squared_error(y_test, predictions)
+r2 = r2_score(y_test, predictions)
+```
+
+### Pipelines
+
+```python
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+
+# Create pipeline
 pipeline = Pipeline([
-    ('preprocessor', DataPreprocessor()),
-    ('classifier', Classifier(algorithm='random_forest'))
+    ('scaler', StandardScaler()),
+    ('classifier', RandomForestClassifier())
 ])
 
+# Fit and predict
 pipeline.fit(X_train, y_train)
 predictions = pipeline.predict(X_test)
 ```
 
-**Parameters:**
-- `steps` (list): List of (name, transformer) tuples
-
-**Methods:**
-
-##### fit(X, y)
-
-Fit all steps.
-
-**Parameters:**
-- `X` (array-like): Training features
-- `y` (array-like): Training labels
-
-**Returns:** self
-
-##### predict(X)
-
-Apply all transformations and predict.
-
-**Parameters:**
-- `X` (array-like): Input features
-
-**Returns:** predictions
-
-##### fit_predict(X, y)
-
-Fit and predict in one step.
-
-**Parameters:**
-- `X` (array-like): Features
-- `y` (array-like): Labels
-
-**Returns:** predictions
-
-### flex.metrics
-
-Model evaluation metrics.
-
-#### accuracy_score
-
-Calculate classification accuracy.
+### Hyperparameter Tuning
 
 ```python
-from flex.metrics import accuracy_score
-
-acc = accuracy_score(y_true, y_pred)
-```
-
-**Parameters:**
-- `y_true` (array-like): Ground truth labels
-- `y_pred` (array-like): Predicted labels
-
-**Returns:** float accuracy
-
-#### mean_squared_error
-
-Calculate MSE for regression.
-
-```python
-from flex.metrics import mean_squared_error
-
-mse = mean_squared_error(y_true, y_pred)
-```
-
-**Parameters:**
-- `y_true` (array-like): Ground truth values
-- `y_pred` (array-like): Predicted values
-
-**Returns:** float MSE
-
-#### classification_report
-
-Generate detailed classification report.
-
-```python
-from flex.metrics import classification_report
-
-report = classification_report(y_true, y_pred)
-print(report)
-```
-
-**Parameters:**
-- `y_true` (array-like): Ground truth labels
-- `y_pred` (array-like): Predicted labels
-
-**Returns:** str report
-
-### flex.tuning
-
-Hyperparameter optimization.
-
-#### GridSearch
-
-Grid search for best hyperparameters.
-
-```python
-from flex.tuning import GridSearch
+from sklearn.model_selection import GridSearchCV
 
 param_grid = {
     'n_estimators': [100, 200, 300],
     'max_depth': [5, 10, 15]
 }
 
-search = GridSearch(model, param_grid, cv=5)
-search.fit(X_train, y_train)
-best_model = search.best_model_
+grid_search = GridSearchCV(
+    RandomForestClassifier(),
+    param_grid,
+    cv=5,
+    n_jobs=-1
+)
+
+grid_search.fit(X_train, y_train)
+best_model = grid_search.best_estimator_
+best_params = grid_search.best_params_
 ```
 
-**Parameters:**
-- `model` (Model): Model to tune
-- `param_grid` (dict): Parameter grid
-- `cv` (int): Cross-validation folds
-
-**Attributes:**
-- `best_params_` (dict): Best parameters found
-- `best_score_` (float): Best cross-validation score
-- `best_model_` (Model): Model with best parameters
-
-### flex.deployment
-
-Model deployment utilities.
-
-#### ModelServer
-
-Serve models via REST API.
+### Model Persistence
 
 ```python
-from flex.deployment import ModelServer
+import joblib
 
-server = ModelServer(model, host='0.0.0.0', port=8000)
-server.start()
+# Save model
+joblib.dump(model, 'model.pkl')
+
+# Load model
+loaded_model = joblib.load('model.pkl')
 ```
 
-**Parameters:**
-- `model` (Model): Model to serve
-- `host` (str): Server host
-- `port` (int): Server port
-
-**Methods:**
-
-##### start()
-
-Start the server.
-
-##### stop()
-
-Stop the server.
-
-#### Predictor
-
-Make predictions with deployed model.
+## Complete Example
 
 ```python
-from flex.deployment import Predictor
-
-predictor = Predictor(endpoint='http://localhost:8000')
-result = predictor.predict(data)
-```
-
-**Parameters:**
-- `endpoint` (str): API endpoint URL
-
-**Methods:**
-
-##### predict(data)
-
-Make prediction via API.
-
-**Parameters:**
-- `data` (dict): Input data
-
-**Returns:** Prediction result
-
-## Examples
-
-### Complete Example
-
-```python
-from flex.data import DataLoader, DataPreprocessor
-from flex.model import Classifier
-from flex.pipeline import Pipeline
-from flex.metrics import accuracy_score
-from flex.tuning import GridSearch
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.pipeline import Pipeline
 
 # Load data
-loader = DataLoader(source='data.csv')
-data = loader.load()
+df = pd.read_csv('data.csv')
+X = df.drop('target', axis=1)
+y = df['target']
 
-X = data.drop('target', axis=1)
-y = data['target']
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
 # Create pipeline
 pipeline = Pipeline([
-    ('preprocessor', DataPreprocessor()),
-    ('classifier', Classifier(algorithm='random_forest'))
+    ('scaler', StandardScaler()),
+    ('classifier', RandomForestClassifier(n_estimators=100, random_state=42))
 ])
 
-# Tune hyperparameters
-param_grid = {'classifier__n_estimators': [100, 200]}
-search = GridSearch(pipeline, param_grid)
-search.fit(X, y)
+# Train
+pipeline.fit(X_train, y_train)
 
-# Get best model
-best_model = search.best_model_
-
-# Make predictions
-predictions = best_model.predict(X_test)
+# Predict
+predictions = pipeline.predict(X_test)
 
 # Evaluate
 accuracy = accuracy_score(y_test, predictions)
 print(f"Accuracy: {accuracy:.2%}")
+print("\nClassification Report:")
+print(classification_report(y_test, predictions))
 ```
 
-## Configuration
+## Model Deployment with FastAPI
 
-### Environment Variables
-
-- `FLEX_DATA_DIR`: Default data directory
-- `FLEX_MODEL_DIR`: Default model save directory
-- `FLEX_LOG_LEVEL`: Logging level (DEBUG, INFO, WARNING, ERROR)
-- `FLEX_CACHE_DIR`: Cache directory for temporary files
-
-### Configuration File
-
-Create `flex_config.yaml`:
-
-```yaml
-data:
-  default_format: csv
-  cache_enabled: true
-
-model:
-  default_algorithm: random_forest
-  auto_save: true
-
-deployment:
-  host: 0.0.0.0
-  port: 8000
-  workers: 4
-```
-
-Load configuration:
+For deploying models as APIs:
 
 ```python
-from flex.config import load_config
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import joblib
+import numpy as np
 
-config = load_config('flex_config.yaml')
+app = FastAPI()
+
+# Load model at startup
+model = joblib.load('model.pkl')
+
+class PredictionRequest(BaseModel):
+    features: list[float]
+
+class PredictionResponse(BaseModel):
+    prediction: float
+    
+@app.post("/predict", response_model=PredictionResponse)
+async def predict(request: PredictionRequest):
+    try:
+        # Convert to numpy array
+        X = np.array([request.features])
+        
+        # Make prediction
+        prediction = model.predict(X)[0]
+        
+        return PredictionResponse(prediction=float(prediction))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Run with: uvicorn api:app --reload
 ```
 
-## Error Handling
+## Common Scikit-Learn Classes
 
-### Common Exceptions
+### Classification Models
+- `LogisticRegression`
+- `DecisionTreeClassifier`
+- `RandomForestClassifier`
+- `GradientBoostingClassifier`
+- `SVC` (Support Vector Classifier)
+- `KNeighborsClassifier`
 
-#### DataError
+### Regression Models
+- `LinearRegression`
+- `Ridge`
+- `Lasso`
+- `DecisionTreeRegressor`
+- `RandomForestRegressor`
+- `GradientBoostingRegressor`
 
-Raised when data loading or validation fails.
+### Preprocessing
+- `StandardScaler` - Standardize features
+- `MinMaxScaler` - Scale to range [0, 1]
+- `LabelEncoder` - Encode labels
+- `OneHotEncoder` - One-hot encode categorical features
 
-```python
-from flex.exceptions import DataError
+### Model Selection
+- `train_test_split` - Split data
+- `cross_val_score` - Cross-validation
+- `GridSearchCV` - Grid search
+- `RandomizedSearchCV` - Randomized search
 
-try:
-    data = loader.load()
-except DataError as e:
-    print(f"Data error: {e}")
-```
+### Metrics
+- Classification: `accuracy_score`, `precision_score`, `recall_score`, `f1_score`
+- Regression: `mean_squared_error`, `mean_absolute_error`, `r2_score`
 
-#### ModelError
+## Resources
 
-Raised when model training or prediction fails.
-
-```python
-from flex.exceptions import ModelError
-
-try:
-    model.fit(X_train, y_train)
-except ModelError as e:
-    print(f"Model error: {e}")
-```
-
-#### DeploymentError
-
-Raised when deployment fails.
-
-```python
-from flex.exceptions import DeploymentError
-
-try:
-    server.start()
-except DeploymentError as e:
-    print(f"Deployment error: {e}")
-```
-
-## Logging
-
-Enable logging:
-
-```python
-import logging
-from flex.utils import setup_logging
-
-setup_logging(level=logging.INFO)
-```
-
-## Version Information
-
-Check FLEX version:
-
-```python
-import flex
-print(flex.__version__)
-```
+- [Scikit-Learn Documentation](https://scikit-learn.org/stable/)
+- [Pandas Documentation](https://pandas.pydata.org/docs/)
+- [NumPy Documentation](https://numpy.org/doc/)
+- [Working Examples](../examples/)
 
 ---
 
-For more examples, see the [examples directory](../examples/).
+For practical examples, see the [examples directory](../examples/).
+
+---
+
+## Conceptual FLEX Framework (Future Development)
+
+The sections below describe what a custom FLEX framework could look like. This is aspirational and shows how you might wrap scikit-learn and other libraries into a unified interface.
+
+<details>
+<summary>Click to expand conceptual framework documentation</summary>
+
+### flex.data Module (Conceptual)
+
+This would wrap pandas and provide utilities:
+
+```python
+# Conceptual - not implemented
+from flex.data import DataLoader, DataPreprocessor
+
+loader = DataLoader(source="path/to/data", format="csv")
+data = loader.load()
+```
+
+### flex.model Module (Conceptual)
+
+This would provide a unified interface to various algorithms:
+
+```python
+# Conceptual - not implemented
+from flex.model import Model
+
+model = Model(algorithm="random_forest", **params)
+model.fit(X_train, y_train)
+```
+
+</details>
+
+---
+
+For questions about the actual implementation, refer to working examples in the `examples/` directory.
